@@ -9,11 +9,6 @@ import { GiPreviousButton, GiNextButton } from "react-icons/gi";
 import { ImLast, ImFirst } from "react-icons/im";
 import Editpage from './components/Editpage';
 
-
-
-
-
-
 const App = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -23,6 +18,49 @@ const App = () => {
   const totalPages = Math.ceil(data.length / pageSize);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [curuser, setCuruser] = useState({})
+  const [selectedAllPage, setSelectAllPage] = useState([])
+
+  // functions to select all handles
+  // const handleCheckedalltrue = (currentPage)=>{
+  //   selectedAllPage.includes(currentPage)?true:false;
+  // }
+  const handleSelectallCheckBoxChange = (currentPage) => {
+    const newSelectedAllPage = selectedAllPage.includes(currentPage) ? (
+      selectedAllPage.filter((selectedId) => selectedId !== currentPage)
+
+    )
+      : [...selectedAllPage, currentPage];
+    setSelectAllPage(newSelectedAllPage)
+    // console.log(newSelectedAllPage)
+    if (selectedAllPage.includes(currentPage)) {
+      const selectedrows = selectedRows.filter((id) =>
+        !data.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + 10).map(user => user.id).includes(id)
+      )
+
+
+      setSelectedRows(selectedrows)
+    }
+    else {
+      const newSelectedRows = !selectedAllPage.includes(currentPage) ?
+        data.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + 10).map((user) =>
+          user.id
+        )
+        : []
+
+
+
+      // setSelectedRows( [...selectedRows, newSelectedRows])
+      setSelectedRows([...new Set([...newSelectedRows, ...selectedRows])]);
+    }
+
+
+
+
+
+  }
+
+
+
   const handleEditClick = () => {
     setIsModalOpen(true);
   };
@@ -31,12 +69,12 @@ const App = () => {
     setIsModalOpen(false);
   };
 
-  const handleSave = (editUser) =>{
+  const handleSave = (editUser) => {
     console.log(editUser)
-    const updateddata = data.map((user)=>
-    editUser.id!==user.id?user:{
-      ...editUser
-    }
+    const updateddata = data.map((user) =>
+      editUser.id !== user.id ? user : {
+        ...editUser
+      }
     )
     setData(updateddata)
     handleCloseModal()
@@ -55,18 +93,21 @@ const App = () => {
 
     fetchData();
   }, []);
+
   const handleCheckboxChange = (id) => {
+
     const updatedSelection = selectedRows.includes(id)
       ? selectedRows.filter((selectedId) => selectedId !== id)
       : [...selectedRows, id];
 
     setSelectedRows(updatedSelection);
+    console.log(updatedSelection)
   };
 
   // Function to delete selected rows
   const handleDeleteSelected = () => {
     const updatedUsers = data.filter((user) => !selectedRows.includes(user.id));
-    setUsers(updatedUsers);
+    setData(updatedUsers);
     setSelectedRows([]);
   };
 
@@ -85,29 +126,38 @@ const App = () => {
     const endIndex = startIndex + pageSize;
 
 
-    return data.slice(startIndex, endIndex).map((user) => (
+    return (
       <>
-        <tr key={user.id} className='text-lg '>
+        {/* {console.log(currentPage)} */}
+        {
 
-          <td className='pr-20'>
-            <input
-              type="checkbox"
-              checked={selectedRows.includes(user.id)}
-              onChange={() => handleCheckboxChange(user.id)}
-            />
-          </td>
-          <td className='pr-20 py-3 whitespace-nowrap'>{user.name}</td>
-          <td className='pr-20'>{user.email}</td>
-          <td className='pr-20'>{user.role}</td>
-          <td className='flex pt-5 gap-3 text-xl '>
-            <FaUserEdit className='hover:scale-125' onClick={() => handleEdit(user)} />
-            <AiFillDelete className='hover:scale-125' onClick={() => handleDelete(user.id)} />
-          </td>
+          data.slice(startIndex, endIndex).map((user) => (
+            <>
 
-        </tr>
+              <tr key={user.id} className='text-lg '>
+                <td className='pr-20'>
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.includes(user.id)}
+                    onChange={() => handleCheckboxChange(user.id)}
+                  />
+                </td>
+                <td className='pr-20 py-3 whitespace-nowrap'>{user.name}</td>
+                <td className='pr-20'>{user.email}</td>
+                <td className='pr-20'>{user.role}</td>
+                <td className='flex pt-5 gap-3 text-xl '>
+                  <FaUserEdit className='hover:scale-125' onClick={() => handleEdit(user)} />
+                  <AiFillDelete className='hover:scale-125' onClick={() => handleDelete(user.id)} />
+                </td>
+
+              </tr>
+            </>
+
+          ))
+        }
       </>
 
-    ));
+    )
   };
 
   const handlePageChange = (newPage) => {
@@ -122,7 +172,7 @@ const App = () => {
     // console.log(user)
     setCuruser(user);
     handleEditClick();
-    
+
 
   };
 
@@ -138,7 +188,7 @@ const App = () => {
   return (
     <>
       <Editpage handleEditClick={handleEditClick} handleCloseModal={handleCloseModal} isModalOpen={isModalOpen}
-       user={curuser} handleSave={handleSave}/>
+        user={curuser} handleSave={handleSave} />
       <div className='flex flex-col justify-center items-center ' >
 
         {/* Search bar */}
@@ -153,7 +203,7 @@ const App = () => {
           />
           <div className='pr-5 text-2xl '>
 
-            <AiFillDelete className='text-red-500 hover:scale-125' />
+            <AiFillDelete className='text-red-500 hover:scale-125' onClick={handleDeleteSelected} />
           </div>
         </div>
 
@@ -165,10 +215,13 @@ const App = () => {
             <thead className=''>
               <tr className=''>
                 <th className='pr-20'>
-                  <input
-                    type="checkbox"
-                    onChange={() => console.log("Select/Deselect all")}
-                  />
+                  <div >
+                    <input
+                      type="checkbox"
+                      checked={selectedAllPage.includes(currentPage)}
+                      onChange={() => handleSelectallCheckBoxChange(currentPage)}
+                    />
+                  </div>
                 </th>
                 <th className=''>Name</th>
                 <th className=''>Email</th>
@@ -201,7 +254,7 @@ const App = () => {
 
             <GiPreviousButton
 
-              onClick={() => handlePageChange(currentPage - 1)}
+              onClick={() => currentPage === 1 ? null : handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             />
             {[...Array(totalPages).keys()].map((page) => (
@@ -216,8 +269,7 @@ const App = () => {
             ))}
             <GiNextButton
 
-
-              onClick={() => handlePageChange(currentPage + 1)}
+              onClick={() => currentPage === totalPages ? null : handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             />
 

@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import Modal from './Modals/Modal';
 
 
-const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user,handleSave }) => {
+const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handleSave }) => {
   const [newValue, setNewvalue] = useState(user);
   const handleChange = (field, value) => {
     // console.log(newValue)
-    setNewvalue({...user,[field]:value});
+    setNewvalue({ ...user, [field]: value });
   };
 
 
@@ -27,8 +27,8 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user,handleS
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="name"
                 type="text"
-                placeholder={user.name}
-                // value={user.name}
+                // placeholder={user.name}
+                value={newValue.name}
                 onChange={(e) => handleChange('name', e.target.value)}
               />
             </div>
@@ -40,23 +40,24 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user,handleS
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
                 type="email"
-                placeholder={user.email}
-                // value={user.email}
-                onChange={(e) => handleChange( 'email', e.target.value)}
+                // placeholder={user.email}
+                value={newValue.email}
+                onChange={(e) => handleChange('email', e.target.value)}
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="member">
-                Member:
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
+                Role:
               </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="member"
-                type="text"
-                placeholder={user.role}
-                // value={user.role}
+              <select
+                className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                id="role"
+                value={newValue.role}
                 onChange={(e) => handleChange('role', e.target.value)}
-              />
+              >
+                <option value="member">Member</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
