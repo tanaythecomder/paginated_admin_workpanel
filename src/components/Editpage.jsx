@@ -4,7 +4,10 @@ import Modal from './Modals/Modal';
 
 
 const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handleSave }) => {
-  const [newValue, setNewvalue] = useState("");
+  const [newValue, setNewvalue] = useState(user);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
 
   
   const handleChange = (field, value) => {
@@ -35,7 +38,7 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
                 type="text"
                 placeholder={user.name}
                 // value={newValue.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="mb-4">
@@ -48,7 +51,7 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
                 type="email"
                 placeholder={user.email}
                 // value={newValue.email}
-                onChange={(e) => handleChange('email', e.target.value)}
+                onChange={(e) => setEmail( e.target.value)}
               />
             </div>
             <div className="mb-4">
@@ -59,7 +62,7 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
                 className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
                 id="role"
                 // value={newValue.role}
-                onChange={(e) => handleChange('role', e.target.value)}
+                onChange={(e) => setRole(e.target.value)}
               >
                 <option value="">-Select-</option>
                 <option value="admin">Admin</option>
@@ -69,7 +72,7 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
               type="button"
-              onClick={() => handleSave(newValue)}
+              onClick={() => handleSave({name:name, email:email, role:role, id:user.id})}
             >
               Save
             </button>
