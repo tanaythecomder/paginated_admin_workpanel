@@ -1,15 +1,21 @@
 // YourMainComponent.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from './Modals/Modal';
 
 
 const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handleSave }) => {
-  const [newValue, setNewvalue] = useState(user);
-  const handleChange = (field, value) => {
-    // console.log(newValue)
-    setNewvalue({ ...user, [field]: value });
-  };
+  const [newValue, setNewvalue] = useState("");
 
+  
+  const handleChange = (field, value) => {
+    
+    setNewvalue({ ...user, [field]: value });
+    
+  };
+  // useEffect(()=>{
+  //   setNewvalue(newValue)
+  // },[])
+ 
 
   return (
     <div className="container mx-auto p-4">
@@ -27,8 +33,8 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="name"
                 type="text"
-                // placeholder={user.name}
-                value={newValue.name}
+                placeholder={user.name}
+                // value={newValue.name}
                 onChange={(e) => handleChange('name', e.target.value)}
               />
             </div>
@@ -40,8 +46,8 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 id="email"
                 type="email"
-                // placeholder={user.email}
-                value={newValue.email}
+                placeholder={user.email}
+                // value={newValue.email}
                 onChange={(e) => handleChange('email', e.target.value)}
               />
             </div>
@@ -52,11 +58,12 @@ const Editpage = ({ handleEditClick, handleCloseModal, isModalOpen, user, handle
               <select
                 className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
                 id="role"
-                value={newValue.role}
+                // value={newValue.role}
                 onChange={(e) => handleChange('role', e.target.value)}
               >
-                <option value="member">Member</option>
+                <option value="">-Select-</option>
                 <option value="admin">Admin</option>
+                <option value="member">Member</option>
               </select>
             </div>
             <button

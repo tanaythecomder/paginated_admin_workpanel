@@ -12,14 +12,16 @@ import Editpage from './components/Editpage';
 const App = () => {
   const [data, setData] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const totalPages = Math.ceil(data.length / pageSize);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [curuser, setCuruser] = useState({})
-  const [selectedAllPage, setSelectAllPage] = useState([])
+  const [curuser, setCuruser] = useState({});
+  const [selectedAllPage, setSelectAllPage] = useState([]);
+  const [filterData, setFilteredData] = useState([])
 
+
+  const [searchQuery, setSearchQuery] = useState("");
   // functions to select all handles
   // const handleCheckedalltrue = (currentPage)=>{
   //   selectedAllPage.includes(currentPage)?true:false;
@@ -71,11 +73,13 @@ const App = () => {
 
   const handleSave = (editUser) => {
     console.log(editUser)
-    const updateddata = data.map((user) =>
+    const updateddata = filterData.map((user) =>
       editUser.id !== user.id ? user : {
         ...editUser
       }
     )
+    console.log(updateddata)
+    setFilteredData(updateddata)
     setData(updateddata)
     handleCloseModal()
   }
@@ -86,6 +90,7 @@ const App = () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASEURL}`);
         setData(response.data);
+        setFilteredData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -106,8 +111,9 @@ const App = () => {
 
   // Function to delete selected rows
   const handleDeleteSelected = () => {
-    const updatedUsers = data.filter((user) => !selectedRows.includes(user.id));
+    const updatedUsers = filterData.filter((user) => !selectedRows.includes(user.id));
     setData(updatedUsers);
+    setFilteredData(updatedUsers)
     setSelectedRows([]);
   };
 
@@ -128,30 +134,33 @@ const App = () => {
 
     return (
       <>
-        {/* {console.log(currentPage)} */}
+
         {
 
           data.slice(startIndex, endIndex).map((user) => (
-            <>
 
-              <tr key={user.id} className='text-lg '>
-                <td className='pr-20'>
+            <>
+              <tr key={user.id} className={`text-lg ${selectedRows.includes(user.id) ? "bg-gray-300" : ""}`}>
+                <td className='w-[50px] text-center'>
                   <input
                     type="checkbox"
                     checked={selectedRows.includes(user.id)}
                     onChange={() => handleCheckboxChange(user.id)}
                   />
                 </td>
-                <td className='pr-20 py-3 whitespace-nowrap'>{user.name}</td>
-                <td className='pr-20'>{user.email}</td>
-                <td className='pr-20'>{user.role}</td>
-                <td className='flex pt-5 gap-3 text-xl '>
+                <td className=' py-3 w-[250px] text-left '>{user.name}</td>
+                <td className=' w-[250px] text-left'>{user.email}</td>
+                <td className=' w-[100px] text-left'>{user.role}</td>
+                <td className='flex pt-5 gap-3 text-xl w-[100px] '>
                   <FaUserEdit className='hover:scale-125' onClick={() => handleEdit(user)} />
                   <AiFillDelete className='hover:scale-125' onClick={() => handleDelete(user.id)} />
                 </td>
 
               </tr>
+              <tr className="border-b border-red-50 "></tr>
             </>
+
+
 
           ))
         }
@@ -180,54 +189,78 @@ const App = () => {
   const handleDelete = (id) => {
     // Implement your delete logic here
     console.log("id to delete", id)
-    const updatedUsers = data.filter((user) => user.id !== id);
-
+    const updatedUsers = filterData.filter((user) => user.id !== id);
+    setFilteredData(updatedUsers)
     setData(updatedUsers);
   };
+
+  const handlePressEnter = (e) => {
+    console.log(searchQuery)
+    // if (searchQuery.trim() === '') {
+    //   // Return all data if search query is empty
+    //   setData(filterData)
+    //   return;
+    // }
+    const filterEntries = () => {
+      const filterD = filterData.filter((user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      console.log(filterD)
+      setData(filterD)
+      setCurrentPage(1)
+    }
+    if (e.key === 'Enter') filterEntries();
+  }
 
   return (
     <>
       <Editpage handleEditClick={handleEditClick} handleCloseModal={handleCloseModal} isModalOpen={isModalOpen}
-        user={curuser} handleSave={handleSave} />
-      <div className='flex flex-col justify-center items-center ' >
+        user={curuser} handleSave={handleSave} setData={setFilteredData} />
+      <div className='flex flex-col justify-center items-center' >
 
         {/* Search bar */}
 
-        <div className="mt-[70px] mb-6 flex items-center w-[800px]  justify-between p-1   ">
+        <div className="mt-[70px] mb-6 flex items-start w-[900px] justify-between p-1">
           <input
             type="text"
             placeholder="Search..."
-            className="border p-1 rounded-lg w-[300px]"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border p-1 rounded-lg w-[200px] pl-7"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handlePressEnter}
           />
-          <div className='pr-5 text-2xl '>
 
-            <AiFillDelete className='text-red-500 hover:scale-125' onClick={handleDeleteSelected} />
-          </div>
         </div>
 
         {/* Table */}
-        <div className='w-[800px] h-[540px] '>
+        <div className='w-[900px] h-[540px] '>
 
-          <table className="table-auto w-full  ">
+          <table className="table-fixed w-full border border-collapse   ">
             {/* Table headers */}
-            <thead className=''>
-              <tr className=''>
-                <th className='pr-20'>
-                  <div >
-                    <input
-                      type="checkbox"
-                      checked={selectedAllPage.includes(currentPage)}
-                      onChange={() => handleSelectallCheckBoxChange(currentPage)}
-                    />
-                  </div>
+            <thead>
+              <tr >
+                <th className='w-[50px] '>
+                  <input
+                    type="checkbox"
+                    checked={selectedAllPage.includes(currentPage)}
+                    onChange={() => handleSelectallCheckBoxChange(currentPage)}
+                  />
+                </th>
+                <th className='text-left w-[270px] py-3'>Name</th>
+                <th className='text-left w-[290px]'>Email</th>
+                <th className='text-left w-[190px]'>Role</th>
+                <th className='text-left w-[100px]'>Actions</th>
+                {/* <th className='pr-20'>
+
                 </th>
                 <th className=''>Name</th>
                 <th className=''>Email</th>
                 <th className=''>Role</th>
-                <th className=''>Actions</th>
+                <th className=''>Actions</th> */}
               </tr>
+              <tr className='border-b border-r-white'></tr>
             </thead>
             {/* Table body */}
             <tbody>{
@@ -242,9 +275,14 @@ const App = () => {
 
 
         </div>
-        <div className="mt-4 w-[800px] flex justify-end ">
+        <div className="mt-12 w-[900px] flex justify-between">
+          <div className='text-3xl ml-3'>
+
+            <AiFillDelete className='text-red-500 hover:scale-125' onClick={handleDeleteSelected} />
+          </div>
 
           {/* Pagination buttons */}
+
           <div className='flex items-center gap-1'>
             <ImFirst
 
