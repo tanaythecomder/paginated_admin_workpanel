@@ -88,7 +88,8 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASEURL}`);
+        console.log(process.env.VITE_BASEURL)
+        const response = await axios.get(`${process.env.VITE_BASEURL}`);
         setData(response.data);
         setFilteredData(response.data);
       } catch (error) {
